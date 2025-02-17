@@ -1,16 +1,12 @@
+import { useCities } from "../contexts/CitiesProvider";
 import styles from "./CityList.module.css";
-import PropTypes from "prop-types";
 import Spinner from "./Spinner";
 import CityItem from "./CityItem";
 import Message from "./Message";
 
-CityList.propTypes = {
-    isLoading: PropTypes.bool,
-    cities: PropTypes.array,
-    formatDate: PropTypes.func
-}
+export default function CityList() {
 
-export default function CityList({ isLoading, cities, formatDate }) {
+    const { isLoading, cities, formatDate } = useCities();
 
     if (isLoading) return <Spinner />;
 

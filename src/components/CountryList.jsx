@@ -1,15 +1,12 @@
+import { useCities } from "../contexts/CitiesProvider";
 import styles from "./CountryList.module.css";
-import PropTypes from "prop-types";
 import Spinner from "./Spinner";
 import CountryItem from "./CountryItem";
 import Message from "./Message";
 
-CountryList.propTypes = {
-    isLoading: PropTypes.bool,
-    cities: PropTypes.array
-}
+export default function CountryList() {
 
-export default function CountryList({ isLoading, cities }) {
+    const { isLoading, cities } = useCities();
 
     if (isLoading) return <Spinner />;
 

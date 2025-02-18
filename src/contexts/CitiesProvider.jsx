@@ -1,5 +1,5 @@
-import { useContext, useState, useEffect, createContext } from "react";
 import PropTypes from 'prop-types';
+import { useContext, useEffect, createContext, useReducer } from "react";
 
 CitiesProvider.propTypes = {
     children: PropTypes.element
@@ -24,25 +24,82 @@ function convertToEmoji(countryCode) {
     return String.fromCodePoint(...codePoints);
 }
 
+const initiaState = {
+    cities: [],
+    currentCity: {},
+    isLoading: false,
+    error: ""
+}
+
+function reducerFn(currentState, action) {
+    switch (action.type) {
+        case 'loading':
+            return {
+                ...currentState,
+                isLoading: true
+            };
+        case 'error':
+            return {
+                ...currentState,
+                error: action.error,
+                isLoading: false
+            };
+        case 'cities/loaded':
+            return {
+                ...currentState,
+                cities: action.cities,
+                isLoading: false
+            };
+        case 'city/loaded':
+            return {
+                ...currentState,
+                currentCity: action.currentCity,
+                isLoading: false
+            };
+        case 'city/created':
+            return {
+                ...currentState,
+                cities: [...currentState.cities, action.city],
+                currentCity: action.city,
+                isLoading: false
+            };
+        case 'city/deleted':
+            return {
+                ...currentState,
+                cities: currentState.cities.filter(city => city.id !== action.cityId),
+                currentCity: {},
+                isLoading: false
+            };
+
+        default: throw new Error("Unknow action type");
+    }
+}
 
 const CitiesContext = createContext();
 
 function CitiesProvider({ children }) {
-    const [cities, setCities] = useState([]);
-    const [currentCity, setCurrentCity] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
+    //const [cities, setCities] = useState([]);
+    //const [currentCity, setCurrentCity] = useState({});
+    //const [isLoading, setIsLoading] = useState(false);
+    const [state, dispatch] = useReducer(reducerFn, initiaState);
+    const {
+        cities,
+        currentCity,
+        isLoading,
+        error
+    } = state;
 
     useEffect(() => {
         async function getCities() {
+            // setIsLoading(true);
+            dispatch({ type: 'loading' });
             try {
-                setIsLoading(true);
                 const res = await fetch(`${BASE_URL}/cities`);
                 const data = await res.json();
-                setCities(data);
+                //setCities(data);
+                dispatch({ type: 'cities/loaded', cities: data })
             } catch (err) {
-                alert("There was an error while fetching the cities:" + err.message);
-            } finally {
-                setIsLoading(false);
+                dispatch({ type: 'error', error: "There was an error while fetching the cities:" + err.message });
             }
         }
 
@@ -50,21 +107,23 @@ function CitiesProvider({ children }) {
     }, []);
 
     async function getCity(id) {
+        if (Number(id) === currentCity.id) return;
+        //setIsLoading(true);
+        dispatch({ type: 'loading' });
         try {
-            setIsLoading(true);
             const res = await fetch(`${BASE_URL}/cities/${id}`);
             const data = await res.json();
-            setCurrentCity(data);
+            //setCurrentCity(data);
+            dispatch({ type: 'city/loaded', currentCity: data })
         } catch (err) {
-            alert("There was an error while fetching the city:" + err.message);
-        } finally {
-            setIsLoading(false);
+            dispatch({ type: 'error', error: "There was an error while fetching the city:" + err.message });
         }
     }
 
     async function addCity(newCity) {
+        //setIsLoading(true);
+        dispatch({ type: 'loading' });
         try {
-            setIsLoading(true);
             const res = await fetch(`${BASE_URL}/cities`, {
                 method: "POST",
                 body: JSON.stringify(newCity),
@@ -73,31 +132,31 @@ function CitiesProvider({ children }) {
                 }
             });
             const data = await res.json();
-            setCities((cities) => [...cities, data]);
+            //setCities((cities) => [...cities, data]);
+            dispatch({ type: 'city/created', city: data });
         } catch (err) {
-            alert("There was an error while adding the city:" + err.message);
-        } finally {
-            setIsLoading(false);
+            dispatch({ type: 'error', error: "There was an error while adding the city:" + err.message });
         }
     }
 
     async function deleteCity(id) {
+        //setIsLoading(true);
+        dispatch({ type: 'loading' });
         try {
-            setIsLoading(true);
             await fetch(`${BASE_URL}/cities/${id}`, {
                 method: "DELETE"
             });
-            setCities((cities) => cities.filter(city => city.id !== id));
+            //setCities((cities) => cities.filter(city => city.id !== id));
+            dispatch({ type: 'city/deleted', cityId: id })
         } catch (err) {
-            alert("There was an error while deleting the city:" + err.message);
-        } finally {
-            setIsLoading(false);
+            dispatch({ type: 'error', error: "There was an error while deleting the city:" + err.message });
         }
     }
 
     return <CitiesContext.Provider value={{
         cities,
         isLoading,
+        error,
         formatDate,
         convertToEmoji,
         currentCity,

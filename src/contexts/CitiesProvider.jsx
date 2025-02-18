@@ -40,7 +40,7 @@ function CitiesProvider({ children }) {
                 const data = await res.json();
                 setCities(data);
             } catch (err) {
-                console.log(err);
+                alert("There was an error while fetching the cities:" + err.message);
             } finally {
                 setIsLoading(false);
             }
@@ -56,7 +56,40 @@ function CitiesProvider({ children }) {
             const data = await res.json();
             setCurrentCity(data);
         } catch (err) {
-            console.log(err);
+            alert("There was an error while fetching the city:" + err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function addCity(newCity) {
+        try {
+            setIsLoading(true);
+            const res = await fetch(`${BASE_URL}/cities`, {
+                method: "POST",
+                body: JSON.stringify(newCity),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            const data = await res.json();
+            setCities((cities) => [...cities, data]);
+        } catch (err) {
+            alert("There was an error while adding the city:" + err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function deleteCity(id) {
+        try {
+            setIsLoading(true);
+            await fetch(`${BASE_URL}/cities/${id}`, {
+                method: "DELETE"
+            });
+            setCities((cities) => cities.filter(city => city.id !== id));
+        } catch (err) {
+            alert("There was an error while deleting the city:" + err.message);
         } finally {
             setIsLoading(false);
         }
@@ -68,7 +101,9 @@ function CitiesProvider({ children }) {
         formatDate,
         convertToEmoji,
         currentCity,
-        getCity
+        getCity,
+        addCity,
+        deleteCity
     }}>
         {children}
     </CitiesContext.Provider>

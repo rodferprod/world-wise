@@ -2,7 +2,7 @@ import styles from './Button.module.css';
 import PropTypes from 'prop-types';
 
 Button.propTypes = {
-    children: PropTypes.element,
+    children: PropTypes.string,
     handleClick: PropTypes.func,
     type: PropTypes.string
 }

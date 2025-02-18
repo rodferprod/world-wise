@@ -17,15 +17,23 @@ function CityItem({ city, formatDate }) {
         position
     } = city;
 
-    const { currentCity } = useCities();
+    const { currentCity, deleteCity } = useCities();
+
+    function handleDeleteCity(ev) {
+        ev.preventDefault();
+        deleteCity(id);
+    }
 
     return (
         <li>
-            <Link className={`${styles.cityItem} ${currentCity.id === city.id ? styles['cityItem--active'] : ''}`} to={`${id}?lat=${position.lat}&lng=${position.lng}`}>
+            <Link
+                className={`${styles.cityItem} ${currentCity.id === city.id ? styles['cityItem--active'] : ''}`}
+                to={`${id}?lat=${position.lat}&lng=${position.lng}`}
+            >
                 <span className={styles.emoji}>{emoji}</span>
                 <h2 className={styles.name}>{cityName}</h2>
                 <time className={styles.date}>{formatDate(date)}</time>
-                <button className={styles.deleteBtn}>&times;</button>
+                <button onClick={handleDeleteCity} className={styles.deleteBtn}>&times;</button>
             </Link>
         </li>
     )

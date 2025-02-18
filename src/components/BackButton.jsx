@@ -11,7 +11,9 @@ function BackButton() {
     }
 
     return (
-        <Button handleClick={handleClickBack} type='back'>&larr; Back</Button>
+        <Button handleClick={handleClickBack} type='back'>
+            &larr; Back
+        </Button>
     )
 }
 

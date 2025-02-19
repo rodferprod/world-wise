@@ -71,7 +71,7 @@ function reducerFn(currentState, action) {
                 isLoading: false
             };
 
-        default: throw new Error("Unknow action type");
+        default: throw new Error("Unknown action type");
     }
 }
 

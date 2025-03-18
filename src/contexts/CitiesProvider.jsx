@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useContext, useEffect, createContext, useReducer } from "react";
+import { useContext, useEffect, createContext, useReducer, useCallback } from "react";
 
 CitiesProvider.propTypes = {
     children: PropTypes.element
@@ -106,7 +106,7 @@ function CitiesProvider({ children }) {
         getCities();
     }, []);
 
-    async function getCity(id) {
+    const getCity = useCallback(async function getCity(id) {
         if (Number(id) === currentCity.id) return;
         //setIsLoading(true);
         dispatch({ type: 'loading' });
@@ -118,7 +118,7 @@ function CitiesProvider({ children }) {
         } catch (err) {
             dispatch({ type: 'error', error: "There was an error while fetching the city:" + err.message });
         }
-    }
+    }, [currentCity.id]);
 
     async function addCity(newCity) {
         //setIsLoading(true);
